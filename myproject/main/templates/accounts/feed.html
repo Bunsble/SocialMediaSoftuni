@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+</head>
+<body>
+    <h1>Post Feed</h1>
+    <div>
+        {% for post in posts %}
+            <div class="post">
+                <h2>{{ post.user.username }}</h2>
+                <p>{{ post.content }}</p>
+                
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
+                {% endif %}
+                
+                <p><strong>Comments:</strong></p>
+                {% for comment in post.comments.all %}
+                    <div class="comment">
+                        <p>{{ comment.user.username }}: {{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+                
+                <!-- Like Button -->
+                {% if liked_posts[post.id] %}
+                    <button disabled>Liked</button>
+                {% else %}
+                    <form method="post" action="{% url 'feed' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button type="submit" name="like_post">Like</button>
+                    </form>
+                {% endif %}
+                
+                <!-- Comment Form -->
+                <form method="post" action="{% url 'feed' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <textarea name="comment_text" required></textarea>
+                    <button type="submit" name="comment_post">Submit Comment</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
