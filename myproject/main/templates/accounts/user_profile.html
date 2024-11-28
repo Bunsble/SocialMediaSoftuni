@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Banner Image -->
+<div class="profile-banner">
+    {% if user_info.7 %}
+        <img src="{{ user_info.7.url }}" alt="Profile Banner">
+    {% else %}
+        <img src="{% static 'images/default_banner.jpg' %}" alt="Default Banner">
+    {% endif %}
+</div>
+
+<!-- Profile Picture -->
+<div class="profile-picture">
+    {% if user_info.6 %}
+        <img src="{{ user_info.6.url }}" alt="Profile Picture">
+    {% else %}
+        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture">
+    {% endif %}
+</div>
+
+<h1>{{ user_info.1 }}'s Profile</h1>
+
+<div class="user-info">
+    <p>Username: {{ user_info.1 }}</p>
+    <p>Email: {{ user_info.2 }}</p>
+    <p>Name: {{ user_info.3 }} {{ user_info.4 }}</p>
+    {% if user_info.5 %}
+    <p>Date of Birth: {{ user_info.5 }}</p>
+    {% endif %}
+</div>
+
+<h2>Posts</h2>
+{% for post in posts %}
+<div class="post">
+    <p>{{ post.1 }}</p>
+    {% if post.2 %}
+    <img src="{{ post.2 }}" alt="Post image">
+    {% endif %}
+    <p>Posted on: {{ post.3 }}</p>
+</div>
+{% empty %}
+<p>No posts yet.</p>
+{% endfor %}
+{% endblock %}

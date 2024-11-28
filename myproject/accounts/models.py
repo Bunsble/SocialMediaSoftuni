@@ -5,19 +5,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db import models
+from django.conf import settings
 
 class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
     content = models.TextField()
     image = models.ImageField(upload_to='posts/', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.title
+        return f"{self.user.username}'s post: {self.content[:30]}..."  # Return first 30 characters of content
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -26,17 +25,19 @@ class Comment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on {self.post.title}"
+        return f"Comment by {self.user.username} on post {self.post.id}"
 
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'post')
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post_like')
+        ]
 
     def __str__(self):
-        return f"{self.user.username} likes {self.post.title}"
+        return f"{self.user.username} likes post {self.post.id}"
 
 
 #class Post(models.Model):
@@ -93,6 +94,9 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
     email = models.EmailField(unique=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    is_staff = models.BooleanField(default=False)
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    banner_image = models.ImageField(upload_to='banner_images/', null=True, blank=True)
 
     def __str__(self):
         return self.username

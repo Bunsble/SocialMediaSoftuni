@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    <h1>Welcome to My Social Media App!</h1>
-    <p>This is the homepage.</p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+    <h1 class="display-3">Welcome to My Social Media App!</h1>
+    <p class="lead">Connect with friends, share moments, and discover new interests on our platform.</p>
+    <hr class="my-4">
+    <p>Our social media app is designed to bring people together and create meaningful connections. Whether you're interested in sharing your daily life, hobbies, or professional achievements, our platform provides the space for it all.</p>
+    <p>Join us today and start exploring the world of social media in a new and exciting way. Don't wait any longer - sign up now and begin your journey!</p>
+{% endblock %}

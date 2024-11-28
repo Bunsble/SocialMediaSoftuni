@@ -1,48 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Feed</title>
-</head>
-<body>
-    <h1>Post Feed</h1>
-    <div>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Feed</h2>
+
+    <!-- Search form -->
+    <form method="get" action="{% url 'feed' %}" class="mb-4">
+        <div class="input-group">
+            <input style="height: 44px;" type="text" name="search" class="form-control" placeholder="Search users or posts" value="{{ search_query }}">
+            <div class="input-group-append">
+                <button style="margin: 0px;" type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Display user search results -->
+    {% if search_query and users %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Users found</h3>
+            </div>
+            <ul class="list-group list-group-flush">
+            {% for user in users %}
+                <li class="list-group-item">
+                    <a href="{% url 'user_profile' user.0 %}">{{ user.1 }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="feed-container">
         {% for post in posts %}
-            <div class="post">
-                <h2>{{ post.user.username }}</h2>
-                <p>{{ post.content }}</p>
-                
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100%; height: auto;">
-                {% endif %}
-                
-                <p><strong>Comments:</strong></p>
-                {% for comment in post.comments.all %}
-                    <div class="comment">
-                        <p>{{ comment.user.username }}: {{ comment.text }}</p>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ post.4 }}</h5> <!-- Username -->
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ post.1 }}</p> <!-- Content -->
+                    {% if post.2 %}
+                        <img src="{{ post.2 }}" alt="Post image" class="img-fluid mb-3">
+                    {% endif %}
+                    <p class="text-muted">Posted on: {{ post.3 }}</p> <!-- Created at -->
+
+                    <div class="likes mb-3">
+                        <span id="like-count-{{ post.0 }}" class="mr-2"><strong>{{ post.5 }} Likes</strong></span>
+                        <button id="like-btn-{{ post.0 }}" 
+                                class="btn btn-sm {% if post.0 in liked_posts %}btn-primary{% else %}btn-outline-primary{% endif %}" 
+                                data-post-id="{{ post.0 }}" 
+                                onclick="toggleLike('{{ post.0 }}', this)">
+                            {% if post.0 in liked_posts %}Liked{% else %}Like{% endif %}
+                        </button>
                     </div>
-                {% endfor %}
-                
-                <!-- Like Button -->
-                {% if liked_posts[post.id] %}
-                    <button disabled>Liked</button>
-                {% else %}
+
+                    <!-- Comments Section -->
+                    <h6>Comments:</h6>
+                    <div class="comments-container mb-3" style="max-height: 200px; overflow-y: auto;">
+                        {% for comment in comments %}
+                            {% if comment.1 == post.0 %}
+                                <div class="comment mb-2">
+                                    <strong>{{ comment.5 }}:</strong> {{ comment.3 }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Comment Form -->
                     <form method="post" action="{% url 'feed' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <button type="submit" name="like_post">Like</button>
+                        <input type="hidden" name="post_id" value="{{ post.0 }}">
+                        <div class="form-group">
+                            <textarea name="comment_text" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <button type="submit" name="comment_post" class="btn btn-primary btn-sm">Submit Comment</button>
                     </form>
-                {% endif %}
-                
-                <!-- Comment Form -->
-                <form method="post" action="{% url 'feed' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="post_id" value="{{ post.id }}">
-                    <textarea name="comment_text" required></textarea>
-                    <button type="submit" name="comment_post">Submit Comment</button>
-                </form>
+                </div>
             </div>
+        {% empty %}
+            <p class="text-muted">No posts available.</p>
         {% endfor %}
     </div>
-</body>
-</html>
+</div>
+
+<script>
+    function toggleLike(postId, buttonElement) {
+        const isLiked = buttonElement.classList.contains('btn-primary');
+        const likeCountElement = document.getElementById(`like-count-${postId}`);
+
+        fetch(`/accounts/toggle_like/${postId}/`, {
+            method: isLiked ? 'DELETE' : 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'liked' || data.status === 'unliked') {
+                buttonElement.classList.toggle('btn-primary', !isLiked);
+                buttonElement.classList.toggle('btn-outline-primary', isLiked);
+                likeCountElement.innerHTML = `<strong>${data.like_count} Likes</strong>`;
+                buttonElement.textContent = data.status === 'liked' ? 'Liked' : 'Like';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+{% endblock %}

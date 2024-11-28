@@ -1,10 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Profile</title>
-</head>
-<body>
-    <h1>Welcome, {{ user.username }}!</h1>
-    <p>Email: {{ user.email }}</p>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Banner Image -->
+    <div class="profile-banner">
+        {% if user.banner_image %}
+            <img src="{{ user.banner_image.url }}" alt="Profile Banner">
+        {% else %}
+            <img src="{% static 'images/default_banner.jpg' %}" alt="Default Banner">
+        {% endif %}
+    </div>
+
+    <!-- Profile Picture -->
+    <div class="profile-picture">
+        {% if user.profile_image %}
+            <img src="{{ user.profile_image }}" alt="Profile Picture">
+        {% else %}
+            <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture">
+        {% endif %}
+    </div>
+
+    <h1>{{ request.user.username }}'s Profile</h1>
+
+<a href="{% url 'edit_profile' %}">Edit Account</a>
+<a href="{% url 'delete_account' %}">Delete Account</a>
+
+<h2>Your Posts</h2>
+{% for post in posts %}
+    <div class="post">
+        <p>{{ post.1 }}</p>  <!-- post content -->
+        {% if post.2 %}
+            <img src="{{ post.2 }}" alt="Post image">
+        {% endif %}
+        <p>Posted on: {{ post.3 }}</p>  <!-- post created_at -->
+        <a href="{% url 'edit_post' post.0 %}">Edit</a>  <!-- Add this line -->
+        <form action="{% url 'delete_post' post_id=post.0 %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Delete Post</button>
+        </form>
+    </div>
+{% empty %}
+    <p>You haven't made any posts yet.</p>
+{% endfor %}
+
+<a href="{% url 'create_post' %}">Create a New Post</a>
+</div>
+{% endblock %}

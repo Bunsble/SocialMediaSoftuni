@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Edit Profile</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" value="{{ username }}" required>
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ email }}" required>
+    
+    <label for="first_name">First Name:</label>
+    <input type="text" id="first_name" name="first_name" value="{{ first_name }}">
+    
+    <label for="last_name">Last Name:</label>
+    <input type="text" id="last_name" name="last_name" value="{{ last_name }}">
+    
+    <label for="date_of_birth">Date of Birth:</label>
+    <input type="date" id="date_of_birth" name="date_of_birth" value="{{ date_of_birth|date:'Y-m-d' }}">
+    
+    <label for="password">New Password (leave blank to keep current):</label>
+    <input type="password" id="password" name="password">
+    
+    <label for="profile_image">Profile Image:</label>
+    <input type="file" id="profile_image" name="profile_image">
+    
+    {% if profile_image %}
+        <img src="{{ profile_image }}" alt="Current Profile Image" style="max-width: 200px;">
+    {% endif %}
+    
+    <label for="banner_image">Banner Image</label>
+    <input type="file" class="form-control-file" id="banner_image" name="banner_image">
+    {% if banner_image %}
+        <img src="/media/{{ banner_image }}" alt="Current Banner Image" style="max-width: 200px;">
+    {% endif %}
+    <button type="submit">Update Profile</button>
+</form>
+{% endblock %}

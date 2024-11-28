@@ -1,0 +1,26 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<h2>Edit Post</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="content" class="form-label">Content</label>
+        <textarea class="form-control" id="content" name="content" rows="3" required>{{ post.content }}</textarea>
+    </div>
+    {% if post.image %}
+    <div class="mb-3">
+        <img src="{{ post.image.url }}" alt="Post image" class="img-fluid mb-2" style="max-width: 200px;">
+        <br>
+        <label for="image" class="form-label">Change Image (optional)</label>
+        <input type="file" class="form-control" id="image" name="image">
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <label for="image" class="form-label">Add Image (optional)</label>
+        <input type="file" class="form-control" id="image" name="image">
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+{% endblock %}
