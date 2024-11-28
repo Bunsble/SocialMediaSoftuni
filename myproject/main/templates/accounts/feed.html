@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Feed</h2>
@@ -29,55 +30,124 @@
         </div>
     {% endif %}
 
-    <div class="feed-container">
-        {% for post in posts %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">{{ post.4 }}</h5> <!-- Username -->
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{ post.1 }}</p> <!-- Content -->
-                    {% if post.2 %}
-                        <img src="{{ post.2 }}" alt="Post image" class="img-fluid mb-3">
-                    {% endif %}
-                    <p class="text-muted">Posted on: {{ post.3 }}</p> <!-- Created at -->
+    <!-- Tabs for Latest and For You -->
+    <ul class="nav nav-tabs mb-4" id="feedTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="latest-tab" data-toggle="tab" href="#latest" role="tab" aria-controls="latest" aria-selected="true">Latest</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="for-you-tab" data-toggle="tab" href="#for-you" role="tab" aria-controls="for-you" aria-selected="false">For You</a>
+        </li>
+    </ul>
 
-                    <div class="likes mb-3">
-                        <span id="like-count-{{ post.0 }}" class="mr-2"><strong>{{ post.5 }} Likes</strong></span>
-                        <button id="like-btn-{{ post.0 }}" 
-                                class="btn btn-sm {% if post.0 in liked_posts %}btn-primary{% else %}btn-outline-primary{% endif %}" 
-                                data-post-id="{{ post.0 }}" 
-                                onclick="toggleLike('{{ post.0 }}', this)">
-                            {% if post.0 in liked_posts %}Liked{% else %}Like{% endif %}
-                        </button>
-                    </div>
-
-                    <!-- Comments Section -->
-                    <h6>Comments:</h6>
-                    <div class="comments-container mb-3" style="max-height: 200px; overflow-y: auto;">
-                        {% for comment in comments %}
-                            {% if comment.1 == post.0 %}
-                                <div class="comment mb-2">
-                                    <strong>{{ comment.5 }}:</strong> {{ comment.3 }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-
-                    <!-- Comment Form -->
-                    <form method="post" action="{% url 'feed' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="post_id" value="{{ post.0 }}">
-                        <div class="form-group">
-                            <textarea name="comment_text" class="form-control" rows="2" required></textarea>
+    <div class="tab-content" id="feedTabContent">
+        <!-- Latest Posts -->
+        <div class="tab-pane fade show active" id="latest" role="tabpanel" aria-labelledby="latest-tab">
+            <div class="feed-container">
+                {% for post in latest_posts %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ post.4 }}</h5> <!-- Username -->
                         </div>
-                        <button type="submit" name="comment_post" class="btn btn-primary btn-sm">Submit Comment</button>
-                    </form>
-                </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ post.1 }}</p> <!-- Content -->
+                            {% if post.2 %}
+                                <img src="{{ post.2 }}" alt="Post image" class="img-fluid mb-3">
+                            {% endif %}
+                            <p class="text-muted">Posted on: {{ post.3 }}</p> <!-- Created at -->
+
+                            <div class="likes mb-3">
+                                <span id="like-count-{{ post.0 }}" class="mr-2"><strong>{{ post.5 }} Likes</strong></span>
+                                <button id="like-btn-{{ post.0 }}"
+                                        class="btn btn-sm {% if post.0 in liked_posts %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                                        data-post-id="{{ post.0 }}"
+                                        onclick="toggleLike('{{ post.0 }}', this)">
+                                    {% if post.0 in liked_posts %}Liked{% else %}Like{% endif %}
+                                </button>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <h6>Comments:</h6>
+                            <div class="comments-container mb-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for comment in comments %}
+                                    {% if comment.1 == post.0 %}
+                                        <div class="comment mb-2">
+                                            <strong>{{ comment.2 }}:</strong> {{ comment.3 }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Comment Form -->
+                            <form method="post" action="{% url 'feed' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ post.0 }}">
+                                <div class="form-group">
+                                    <textarea name="comment_text" class="form-control" rows="2" required></textarea>
+                                </div>
+                                <button type="submit" name="comment_post" class="btn btn-primary btn-sm">Submit Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No posts available.</p>
+                {% endfor %}
             </div>
-        {% empty %}
-            <p class="text-muted">No posts available.</p>
-        {% endfor %}
+        </div>
+
+        <!-- For You Posts -->
+        <div class="tab-pane fade" id="for-you" role="tabpanel" aria-labelledby="for-you-tab">
+            <div class="feed-container">
+                {% for post in for_you_posts %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ post.4 }}</h5> <!-- Username -->
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ post.1 }}</p> <!-- Content -->
+                            {% if post.2 %}
+                                <img src="{{ post.2 }}" alt="Post image" class="img-fluid mb-3">
+                            {% endif %}
+                            <p class="text-muted">Posted on: {{ post.3 }}</p> <!-- Created at -->
+
+                            <div class="likes mb-3">
+                                <span id="like-count-{{ post.0 }}" class="mr-2"><strong>{{ post.5 }} Likes</strong></span>
+                                <button id="like-btn-{{ post.0 }}"
+                                        class="btn btn-sm {% if post.0 in liked_posts %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                                        data-post-id="{{ post.0 }}"
+                                        onclick="toggleLike('{{ post.0 }}', this)">
+                                    {% if post.0 in liked_posts %}Liked{% else %}Like{% endif %}
+                                </button>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <h6>Comments:</h6>
+                            <div class="comments-container mb-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for comment in comments %}
+                                    {% if comment.1 == post.0 %}
+                                        <div class="comment mb-2">
+                                            <strong>{{ comment.2 }}:</strong> {{ comment.3 }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Comment Form -->
+                            <form method="post" action="{% url 'feed' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ post.0 }}">
+                                <div class="form-group">
+                                    <textarea name="comment_text" class="form-control" rows="2" required></textarea>
+                                </div>
+                                <button type="submit" name="comment_post" class="btn btn-primary btn-sm">Submit Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No posts available.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 

@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from django.conf.urls.static import static
 from .views import (
     FeedView, CreatePostView, ProfileView, RegisterView, UserLoginView,
-    delete_post, upload_banner, upload_profile_picture, admin_create_user, admin_create_post, admin_delete_user, admin_edit_user, admin_delete_post, admin_edit_post, admin_users, toggle_like, edit_profile, delete_account, user_profile, edit_post, custom_logout, user_profile, admin_posts,
+    delete_post, toggle_follow, upload_banner, upload_profile_picture, admin_create_user, admin_create_post, admin_delete_user, admin_edit_user, admin_delete_post, admin_edit_post, admin_users, toggle_like, edit_profile, delete_account, user_profile, edit_post, custom_logout, user_profile, admin_posts,
 )
 
 urlpatterns = [
@@ -30,5 +30,6 @@ urlpatterns = [
     path('admin/users/delete/<int:user_id>/', admin_delete_user, name='admin_delete_user'),
     path('upload_profile_picture/', upload_profile_picture, name='upload_profile_picture'),
     path('upload_banner/', upload_banner, name='upload_banner'),
+    path('toggle_follow/<int:user_id>/', toggle_follow, name='toggle_follow'),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

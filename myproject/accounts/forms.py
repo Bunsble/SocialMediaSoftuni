@@ -7,6 +7,14 @@ from django.contrib.auth.forms import UserChangeForm
 from django import forms
 from .models import Post, CustomUser
 
+from django import forms
+from .models import Follow
+
+class FollowForm(forms.ModelForm):
+    class Meta:
+        model = Follow
+        fields = []
+
 class AdminPostForm(forms.ModelForm):
     class Meta:
         model = Post

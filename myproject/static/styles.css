@@ -254,3 +254,43 @@ button[disabled] {
 .btn-secondary { background-color: #6c757d; }
 .btn-danger { background-color: #dc3545; }
 .btn-success { background-color: #28a745; }
+
+
+.user-info.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.card-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.card-body p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.follow-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.follow-info p {
+    margin: 0;
+    font-weight: bold;
+    color: #333;
+}

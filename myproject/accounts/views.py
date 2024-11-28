@@ -45,6 +45,22 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
+
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Follow, CustomUser
+
+@login_required
+def toggle_follow(request, user_id):
+    target_user = get_object_or_404(CustomUser, id=user_id)
+    follow, created = Follow.objects.get_or_create(follower=request.user, following=target_user)
+
+    if not created:
+        follow.delete()
+
+    return redirect('user_profile', user_id=user_id)
+
+
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
@@ -192,54 +208,71 @@ from .forms import CustomUserCreationForm, CommentForm, PostForm
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
+from django.views import View
+from django.db import connection
+from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect
+from django.db import connection
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 class FeedView(LoginRequiredMixin, View):
     template_name = 'accounts/feed.html'
 
     def get(self, request):
         search_query = request.GET.get('search', '')
+
         with connection.cursor() as cursor:
+            # Fetch latest posts
             cursor.execute("""
                 SELECT p.id, p.content, p.image, p.created_at, u.username, 
                        (SELECT COUNT(*) FROM accounts_like WHERE post_id = p.id) as like_count
                 FROM accounts_post p
                 JOIN accounts_customuser u ON p.user_id = u.id
-                WHERE p.content LIKE %s OR u.username LIKE %s
+                WHERE (p.content LIKE %s OR u.username LIKE %s)
                 ORDER BY p.created_at DESC
             """, [f'%{search_query}%', f'%{search_query}%'])
-            posts = cursor.fetchall()
+            latest_posts = cursor.fetchall()
 
+            # Fetch posts for "For You" section based on followed users
             cursor.execute("""
-                SELECT id, username, email
+                SELECT p.id, p.content, p.image, p.created_at, u.username, 
+                       (SELECT COUNT(*) FROM accounts_like WHERE post_id = p.id) as like_count
+                FROM accounts_post p
+                JOIN accounts_customuser u ON p.user_id = u.id
+                WHERE p.user_id IN (
+                    SELECT following_id FROM accounts_follow WHERE follower_id = %s
+                ) AND (p.content LIKE %s OR u.username LIKE %s)
+                ORDER BY p.created_at DESC
+            """, [request.user.id, f'%{search_query}%', f'%{search_query}%'])
+            for_you_posts = cursor.fetchall()
+
+            # Fetch users based on search query
+            cursor.execute("""
+                SELECT id, username
                 FROM accounts_customuser
-                WHERE username LIKE %s OR email LIKE %s
-            """, [f'%{search_query}%', f'%{search_query}%'])
+                WHERE username LIKE %s
+            """, [f'%{search_query}%'])
             users = cursor.fetchall()
 
+            # Fetch comments
             cursor.execute("""
-                SELECT c.id, c.post_id, c.user_id, c.text, c.created_at, u.username
+                SELECT c.id, c.post_id, c.text, c.created_at, u.username
                 FROM accounts_comment c
                 JOIN accounts_customuser u ON c.user_id = u.id
                 ORDER BY c.created_at DESC
             """)
             comments = cursor.fetchall()
 
-        comment_form = CommentForm()
-
-        liked_posts = set()
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT post_id FROM accounts_like WHERE user_id = %s
-            """, [request.user.id])
-            liked_posts = {row[0] for row in cursor.fetchall()}
-
-        return render(request, self.template_name, {
-            'posts': posts,
+        context = {
+            'search_query': search_query,
+            'latest_posts': latest_posts,
+            'for_you_posts': for_you_posts,
             'users': users,
             'comments': comments,
-            'comment_form': comment_form,
-            'liked_posts': liked_posts,
-            'search_query': search_query,
-        })
+            'liked_posts': self.get_liked_posts(request.user.id),
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request):
         if 'comment_post' in request.POST:
@@ -252,6 +285,17 @@ class FeedView(LoginRequiredMixin, View):
                 """, [request.user.id, post_id, text])
             return redirect('feed')
         return self.get(request)
+
+    def get_liked_posts(self, user_id):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT post_id FROM accounts_like WHERE user_id = %s
+            """, [user_id])
+            liked_posts = cursor.fetchall()
+        return [post[0] for post in liked_posts]
+
+
+
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView
@@ -343,6 +387,8 @@ class UserLoginView(LoginView):
 
 from django.shortcuts import render, get_object_or_404
 
+from django.shortcuts import render
+from django.db import connection
 def user_profile(request, user_id):
     with connection.cursor() as cursor:
         # Fetch user information including profile picture and banner image
@@ -365,11 +411,32 @@ def user_profile(request, user_id):
         """, [user_id])
         posts = cursor.fetchall()
 
+        # Check if the current user is following the target user
+        cursor.execute("""
+            SELECT EXISTS(
+                SELECT 1 FROM accounts_follow
+                WHERE follower_id = %s AND following_id = %s
+            )
+        """, [request.user.id, user_id])
+        is_following = cursor.fetchone()[0]
+
+        # Count followers
+        cursor.execute("SELECT COUNT(*) FROM accounts_follow WHERE following_id = %s", [user_id])
+        followers_count = cursor.fetchone()[0]
+
+        # Count following
+        cursor.execute("SELECT COUNT(*) FROM accounts_follow WHERE follower_id = %s", [user_id])
+        following_count = cursor.fetchone()[0]
+
     context = {
         'user_info': user_info,
         'posts': posts,
+        'is_following': is_following,
+        'followers_count': followers_count,
+        'following_count': following_count,
     }
     return render(request, 'accounts/user_profile.html', context)
+
 
     
 from django.contrib.auth import logout

@@ -22,14 +22,34 @@
 
 <h1>{{ user_info.1 }}'s Profile</h1>
 
-<div class="user-info">
-    <p>Username: {{ user_info.1 }}</p>
-    <p>Email: {{ user_info.2 }}</p>
-    <p>Name: {{ user_info.3 }} {{ user_info.4 }}</p>
-    {% if user_info.5 %}
-    <p>Date of Birth: {{ user_info.5 }}</p>
-    {% endif %}
+<div class="user-info card">
+    <div class="card-header">
+        <h2>User Information</h2>
+    </div>
+    <div class="card-body">
+        <p><strong>Username:</strong> {{ user_info.1 }}</p>
+        <p><strong>Email:</strong> {{ user_info.2 }}</p>
+        <p><strong>Name:</strong> {{ user_info.3 }} {{ user_info.4 }}</p>
+        {% if user_info.5 %}
+            <p><strong>Date of Birth:</strong> {{ user_info.5 }}</p>
+        {% endif %}
+        <div class="follow-info">
+            <p><strong>Followers:</strong> {{ followers_count }}</p>
+            <p><strong>Following:</strong> {{ following_count }}</p>
+        </div>
+    </div>
 </div>
+
+
+<!-- Follow/Unfollow Button -->
+<form method="post" action="{% url 'toggle_follow' user_id=user_info.0 %}">
+    {% csrf_token %}
+    {% if is_following %}
+        <button type="submit">Unfollow</button>
+    {% else %}
+        <button type="submit">Follow</button>
+    {% endif %}
+</form>
 
 <h2>Posts</h2>
 {% for post in posts %}
