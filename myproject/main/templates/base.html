@@ -13,6 +13,34 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style>
+    header {
+        background: linear-gradient(to right, #5eafff, #4a90e2);
+        padding: 10px 0;
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .navbar-nav .nav-link {
+        margin-right: 15px;
+        font-weight: 500;
+    }
+
+    main {
+        min-height: 80vh;
+    }
+
+    footer {
+        background: #343a40;
+        color: #ffffff;
+        padding: 15px 0;
+        text-align: center;
+    }
+</style>
 </head>
 <body>
     <header style="background-color: #5eafff !important;" class="bg-dark text-white">
@@ -48,6 +76,10 @@
         <!-- Page-specific content goes here -->
         {% endblock %}
     </main>
+
+    <footer>
+        <p>© 2024 SocialMedia Bunsble. All Rights Reserved.</p>
+    </footer>
 
     <!-- Bootstrap JS & Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

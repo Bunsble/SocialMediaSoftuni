@@ -89,8 +89,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'socialmedia_softuni',
-        'USER': 'ivan',
-        'PASSWORD': 'taraleji##',
+        'USER': 'socialmedia_softuni',
+        'PASSWORD': 'EMeA3b69WoY7hBrHV8nH',
         'HOST': 'p.bunsble.com',  # Use the domain name or IP address
         'PORT': '3306',           # Default MySQL port
     }

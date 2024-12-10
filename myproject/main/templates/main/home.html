@@ -1,13 +1,47 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Home
+Welcome to SocialMedia Bunsble
 {% endblock %}
 
 {% block content %}
-    <h1 class="display-3">Welcome to My Social Media App!</h1>
-    <p class="lead">Connect with friends, share moments, and discover new interests on our platform.</p>
+<div class="text-center my-5">
+    <h1 class="display-3 fw-bold text-primary">Welcome to SocialMedia Bunsble!</h1>
+    <p class="lead text-secondary">Your place to connect, share, and explore.</p>
     <hr class="my-4">
-    <p>Our social media app is designed to bring people together and create meaningful connections. Whether you're interested in sharing your daily life, hobbies, or professional achievements, our platform provides the space for it all.</p>
-    <p>Join us today and start exploring the world of social media in a new and exciting way. Don't wait any longer - sign up now and begin your journey!</p>
+    <p class="mb-4 text-muted">
+        SocialMedia Bunsble is crafted to bring people together and foster meaningful interactions. 
+        Whether you're here to share your passions, connect with friends, or discover new communities, 
+        we've got you covered.
+    </p>
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'register' %}" class="btn btn-lg btn-primary me-3 px-4">Join Now</a>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <span class="display-4 text-primary">🌍</span>
+            </div>
+            <h5>Global Community</h5>
+            <p class="text-muted">Connect with people from all over the world and share experiences.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <span class="display-4 text-primary">📷</span>
+            </div>
+            <h5>Share Your Moments</h5>
+            <p class="text-muted">Post photos, videos, and updates to showcase your life and interests.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <span class="display-4 text-primary">🔒</span>
+            </div>
+            <h5>Privacy First</h5>
+            <p class="text-muted">Your data is secure with us. Enjoy peace of mind while you connect.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
