@@ -1,1 +1,1 @@
-you need mysqlclient
+you need mysqlclient - python -m pip install mysqlclient
